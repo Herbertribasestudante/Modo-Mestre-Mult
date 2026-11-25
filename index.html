@@ -35,7 +35,7 @@ input[type="range"].emerald-thumb::-webkit-slider-thumb{background:#10b981;box-s
 </head>
 <body class="p-3 sm:p-5">
 <div class="max-w-5xl mx-auto flex flex-col gap-3.5">
-
+ 
 <header class="bg-[#0d1424] border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
 <div class="flex flex-col gap-1">
 <div class="flex flex-wrap items-center gap-2.5">
@@ -57,7 +57,7 @@ input[type="range"].emerald-thumb::-webkit-slider-thumb{background:#10b981;box-s
 <button id="btnPlayHarmony" type="button" class="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-[#131d33] hover:bg-[#1a2744] text-sky-300 border border-sky-500/40 transition cursor-pointer"><span>♪</span><span id="uiBtnHarmony">Ouvir Harmonia</span></button>
 </div>
 </header>
-
+ 
 <section class="bg-[#0d1424] border border-slate-800/90 rounded-2xl p-3.5 sm:p-4 flex flex-col gap-3 shadow-lg">
 <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
 <div class="flex items-center gap-3">
@@ -90,7 +90,7 @@ input[type="range"].emerald-thumb::-webkit-slider-thumb{background:#10b981;box-s
 </div>
 </div>
 </section>
-
+ 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
 <section class="lg:col-span-5 bg-[#0d1424] border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between gap-3.5 shadow-lg">
 <div class="flex items-center justify-between gap-2">
@@ -111,7 +111,7 @@ input[type="range"].emerald-thumb::-webkit-slider-thumb{background:#10b981;box-s
 <div id="modesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
 </section>
 </div>
-
+ 
 <section class="bg-[#0d1424] border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-lg">
 <div class="flex flex-wrap items-start justify-between gap-2">
 <div>
@@ -131,7 +131,7 @@ input[type="range"].emerald-thumb::-webkit-slider-thumb{background:#10b981;box-s
 <span id="parentShapeHint" class="text-slate-400"></span>
 </div>
 </section>
-
+ 
 <section class="bg-[#0d1424] border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-lg">
 <div class="flex flex-wrap items-center justify-between gap-2">
 <div>
@@ -165,7 +165,7 @@ input[type="range"].emerald-thumb::-webkit-slider-thumb{background:#10b981;box-s
 </div>
 </section>
 </div>
-
+ 
 <script>
 // ============ 1. DADOS ============
 const NOTES_SHARP=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
@@ -181,7 +181,7 @@ function getStrings(){const a=[...GUITAR_STRINGS];
   if(state.stringCount===7)a.push({num:7,label:`7ª (${state.low7})`,labelEn:`7th (${state.low7})`,openMidi:state.low7==="A"?33:35,gauge:4.2});return a;}
 const anchorName=t=>state.anchorString===7?t.string7Name:state.anchorString===6?t.string6Name:t.string5Name;
 const FRET_TOTAL=15,SINGLE_INLAYS=[3,5,7,9,15],DOUBLE_INLAYS=[12];
-
+ 
 const MODES_DATA=[
 {id:"mixolydian",shift:-2,parentOffset:-7,intervals:[0,2,4,5,7,9,10],degrees:["1","2","3","4","5","6","b7"],charDegrees:["b7"],
 names:{pt:"Mixolídio",en:"Mixolydian",es:"Mixolidio"},
@@ -219,7 +219,7 @@ subs:{pt:"Meio-Diminuto (b2, b3, b5, b6, b7)",en:"Half-Diminished (b2, b3, b5, b
 genres:{pt:"Metal Extremo / Jazz II-V",en:"Extreme Metal / Jazz II-V",es:"Metal Extremo / Jazz II-V"},
 vamps:{pt:(r,t)=>`${r}m7(b5) → ${t}`,en:(r,t)=>`${r}m7(b5) → ${t}`,es:(r,t)=>`${r}m7(b5) → ${t}`}}
 ];
-
+ 
 const I18N={
 pt:{headerBadge:"Régua Geométrica",headerSubtitle:'Escolha o <strong class="text-slate-200 font-semibold">Chefe (Pedal Point)</strong> e veja o movimento exato no braço sem fazer conta.',
 btnPedalPlay:"Tocar Pedal + Base",btnPedalStop:"Parar Pedal + Base",btnScale:"Ouvir Escala",btnSlow:"Ouvir Lento",btnHarmony:"Ouvir Harmonia",btnMetro:"Metrônomo",
@@ -270,7 +270,7 @@ shapeHint:(p,b,f)=>`Toca las mismas notas de la escala de ${p} Mayor, pero empie
 practicalDesc:(b,f,s,back,abs,tf,tn,m)=>{const d=back?`${abs} ${abs===1?"traste hacia atrás":"trastes hacia atrás"}`:`${abs} ${abs===1?"traste hacia adelante":"trastes hacia adelante"}`;
 return `Estás en el traste <strong class="text-white">${f} (${b})</strong> en la ${s}. ${back?"Retrocede":"Avanza"} <strong class="text-amber-300">${d}</strong> en la misma cuerda (${f} ${back?"-":"+"} ${abs} = <strong class="text-white">traste ${tf}</strong>) ¡y caes directo en <strong class="text-emerald-400">${tn}</strong>! Usa el acorde de <strong class="text-white">${tn}</strong> en la base para sonar 100% ${b} ${m}.`;}}
 };
-
+ 
 // ============ 2. ESTADO ============
 const state={lang:"pt",bossNoteIndex:11,anchorString:6,modeId:"mixolydian",showDegrees:false,bpm:96,beatsPerBar:4,
 metroVol:.45,backingVol:.78,scaleVol:.88,masterVol:1,pedalPlaying:false,metroPlaying:false};
@@ -278,12 +278,12 @@ Object.assign(state,{preset:null,stringCount:6,low7:"B",sel:null,keepAwake:true}
 try{const v=localStorage.getItem("mm_keepAwake");if(v!==null)state.keepAwake=v==="1";}catch(e){}
 const isActive=()=>state.pedalPlaying||state.metroPlaying;
 const vcurve=v=>Math.pow(Math.max(0,v),1.6); // curva exponencial de volume (mais fina nos níveis baixos)
-
+ 
 // ============ 3. MOTOR DE ÁUDIO (alto, agendado pelo relógio do Web Audio) ============
 const LOOKAHEAD=.3,TICK_MS=25,MASTER_GAIN=1.5;
 let audioCtx=null,master=null,busBase=null,busMetro=null,busScale=null,scaleBus=null,scaleTimeouts=[];
 const bk={on:false,next:0,step:0},mt={on:false,next:0,beat:0};
-
+ 
 function buildBus(){
   if(master||!audioCtx)return;
   master=audioCtx.createGain();master.gain.value=vcurve(state.masterVol)*MASTER_GAIN;
@@ -307,7 +307,7 @@ function ensureAudio(){
   try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){}
 }
 const midiToFreq=m=>440*Math.pow(2,(m-69)/12);
-
+ 
 // Tom suave (baixo / acordes): camadas normalizadas, o pico nunca passa do valor pedido
 function tone(layers,freq,when,dur,peak,atk,lp0,lp1,out){
   const t=Math.max(when||0,audioCtx.currentTime),sum=layers.reduce((a,l)=>a+l[2],0);
@@ -323,7 +323,7 @@ function tone(layers,freq,when,dur,peak,atk,lp0,lp1,out){
   });
   filter.connect(gain);gain.connect(out||busBase);
 }
-
+ 
 // Corda de violão/guitarra real (Karplus-Strong): nota afinada, natural, sem distorção
 const ksCache=new Map();
 function ksBuffer(freq,len){
@@ -383,7 +383,7 @@ function getModalProgression(id,root){
     default:return[[r,r+4,r+7,r+11],[r+5,r+9,r+12,r+16]];
   }
 }
-
+ 
 // Agendador: Worker (não sofre throttle em segundo plano / tela bloqueada)
 let worker=null,fallbackId=null;
 function startTicker(){
@@ -397,7 +397,7 @@ function stopTickerIfIdle(){
   if(fallbackId){clearInterval(fallbackId);fallbackId=null;}
 }
 function tick(){if(!audioCtx)return;if(bk.on)schedBacking();if(mt.on)schedMetro();}
-
+ 
 function backingBeat(step,t){
   const beatSec=60/state.bpm,per=Math.max(3,state.beatsPerBar===6?3:state.beatsPerBar);
   const mode=getActiveMode(),pedal=36+state.bossNoteIndex,prog=getModalProgression(mode.id,pedal);
@@ -457,7 +457,7 @@ function playScaleUpAndDown(slow,onlyUp){
     },Math.max(0,(at-audioCtx.currentTime)*1000)));
   });
 }
-
+ 
 function playModeHarmony(){
   stopScaleSequence();ensureAudio();if(!audioCtx)return;
   const mode=getActiveMode(),pedal=36+state.bossNoteIndex,prog=getModalProgression(mode.id,pedal);
@@ -471,7 +471,7 @@ function playModeHarmony(){
     });
   },delay*1000));
 }
-
+ 
 // ---- Tela ativa (Wake Lock) ----
 let wl=null,wlPending=false;
 async function acquireWL(){
@@ -481,7 +481,7 @@ async function acquireWL(){
   wlPending=false;
 }
 function releaseWL(){if(wl){wl.release().catch(()=>{});wl=null;}}
-
+ 
 // ---- Áudio de sessão silencioso: mantém a página "tocando" com a tela bloqueada ----
 let sessionEl=null;
 function makeSilentWav(){
@@ -489,14 +489,14 @@ function makeSilentWav(){
   const w=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
   w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
   v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
-  for(let i=0;i<n;i++)v.setUint8(44+i,i%97===0?129:128);
+  for(let i=0;i<n;i++)v.setUint8(44+i,128);
   return URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));
 }
 function setSession(on){
   if(!sessionEl){sessionEl=new Audio(makeSilentWav());sessionEl.loop=true;sessionEl.setAttribute("playsinline","");}
   if(on)sessionEl.play().catch(()=>{});else sessionEl.pause();
 }
-
+ 
 // ---- Media Session (tela de bloqueio) ----
 const artCache={};
 function makeArt(note,label){
@@ -535,7 +535,7 @@ document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="visible"&&isActive())acquireWL();
   if(audioCtx&&isActive()&&audioCtx.state!=="running")audioCtx.resume().catch(()=>{});
 });
-
+ 
 // ============ 4. LÓGICA E RENDER ============
 function getActiveMode(){return MODES_DATA.find(m=>m.id===state.modeId)||MODES_DATA[0];}
 function getBossFretOnString(noteIndex,stringNum){
@@ -688,7 +688,7 @@ function applyPreset(k){
   applyMasterGain();updateExtraTexts();
 }
 function renderAll(){updateStaticTexts();renderBossGrid();renderModesGrid();renderRulerBanner();renderFretboard();updateMediaSession();}
-
+ 
 // ============ 5. EVENTOS ============
 const $=id=>document.getElementById(id);
 document.querySelectorAll(".lang-btn").forEach(b=>b.addEventListener("click",()=>{state.lang=b.dataset.lang;renderAll();}));
@@ -722,7 +722,7 @@ bindVol("sliderBaseVol","valBaseVol","backingVol");
 bindVol("sliderScaleVol","valScaleVol","scaleVol");
 bindVol("sliderMasterVol","valMasterVol","masterVol",()=>{applyMasterGain();});
 $("btnToggleLabels").addEventListener("click",()=>{state.showDegrees=!state.showDegrees;updateStaticTexts();renderFretboard();});
-
+ 
 $("btnPresetStudy").addEventListener("click",()=>applyPreset("study"));
 $("btnPresetBacking").addEventListener("click",()=>applyPreset("backing"));
 $("btnString7").addEventListener("click",()=>{state.anchorString=7;renderAll();});
@@ -740,3 +740,4 @@ renderAll();
 </script>
 </body>
 </html>
+ 
