@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#070b14" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>ModoMestre 2 — Régua Geométrica dos Modos Gregos</title>
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" type="image/svg+xml" href="./icon.svg" />
+<link rel="apple-touch-icon" href="./icon.svg" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:'Inter',system-ui,-apple-system,sans-serif;background-color:#070b14;color:#f1f5f9;min-height:100vh;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:5px;background:#1e293b;border-radius:999px;outline:none;cursor:pointer}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#38bdf8;cursor:pointer;box-shadow:0 0 8px rgba(56,189,248,.6)}
+input[type="range"].amber-thumb::-webkit-slider-thumb{background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.6)}
+input[type="range"].emerald-thumb::-webkit-slider-thumb{background:#10b981;box-shadow:0 0 8px rgba(16,185,129,.6)}
+.fretboard-wood{background:linear-gradient(180deg,#2b1d14 0%,#1f140d 50%,#281a11 100%);box-shadow:inset 0 2px 12px rgba(0,0,0,.75)}
+.note-dot{transition:transform .12s ease,box-shadow .12s ease,filter .12s ease}
+.note-dot:hover{transform:scale(1.16);filter:brightness(1.12)}
+.note-dot.active-pulse{transform:scale(1.26)!important;box-shadow:0 0 16px #fff,0 0 26px #38bdf8!important;z-index:30}
+.fret-scroll{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior-x:contain}
+.note-dot{touch-action:none;-webkit-user-select:none;user-select:none}
+.note-dot.sel-dot{transform:scale(1.28)!important;outline:3px solid #fff;outline-offset:1px;box-shadow:0 0 18px #fff,0 0 30px rgba(255,255,255,.55)!important;z-index:40}
+.fret-scroll::-webkit-scrollbar{height:6px}
+.fret-scroll::-webkit-scrollbar-track{background:#0b1120;border-radius:999px}
+.fret-scroll::-webkit-scrollbar-thumb{background:#1e293b;border-radius:999px}
+</style>
+</head>
+<body class="p-3 sm:p-5">
+<div class="max-w-5xl mx-auto flex flex-col gap-3.5">
+
+<header class="bg-[#0d1424] border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+<div class="flex flex-col gap-1">
+<div class="flex flex-wrap items-center gap-2.5">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_#fbbf24]"></span>
+<h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">ModoMestre</h1>
+<span id="uiHeaderBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700/70">Régua Geométrica</span>
+<div class="inline-flex items-center bg-[#080d18] border border-slate-800 rounded-lg p-0.5 ml-1" role="group" aria-label="Language">
+<button type="button" data-lang="pt" class="lang-btn px-2 py-0.5 text-[11px] font-bold rounded-md transition">PT-BR</button>
+<button type="button" data-lang="en" class="lang-btn px-2 py-0.5 text-[11px] font-bold rounded-md transition">EN</button>
+<button type="button" data-lang="es" class="lang-btn px-2 py-0.5 text-[11px] font-bold rounded-md transition">ES</button>
+</div>
+</div>
+<p id="uiHeaderSubtitle" class="text-xs sm:text-[13px] text-slate-400 max-w-xl leading-relaxed"></p>
+</div>
+<div class="flex flex-wrap items-center gap-2 shrink-0">
+<button id="btnPedalBase" type="button" class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-[0_0_18px_rgba(245,158,11,0.35)] transition cursor-pointer"><span id="pedalPlayIcon">▶</span><span id="uiBtnPedal">Tocar Pedal + Base</span></button>
+<button id="btnPlayScale" type="button" class="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-[#131d33] hover:bg-[#1a2744] text-slate-200 border border-slate-700/80 transition cursor-pointer"><span>♫</span><span id="uiBtnScale">Ouvir Escala</span></button>
+<button id="btnPlaySlow" type="button" class="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-[#131d33] hover:bg-[#1a2744] text-slate-300 border border-slate-700/80 transition cursor-pointer"><span>◷</span><span id="uiBtnSlow">Ouvir Lento</span></button>
+<button id="btnPlayHarmony" type="button" class="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-[#131d33] hover:bg-[#1a2744] text-sky-300 border border-sky-500/40 transition cursor-pointer"><span>♪</span><span id="uiBtnHarmony">Ouvir Harmonia</span></button>
+</div>
+</header>
+
+<section class="bg-[#0d1424] border border-slate-800/90 rounded-2xl p-3.5 sm:p-4 flex flex-col gap-3 shadow-lg">
+<div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
+<div class="flex items-center gap-3">
+<button id="btnMetronome" type="button" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#131d33] hover:bg-[#1b2947] text-slate-200 border border-slate-700/80 transition cursor-pointer"><span id="metroDot" class="w-2 h-2 rounded-full bg-slate-500"></span><span id="uiBtnMetro">Metrônomo</span></button>
+<div id="beatLeds" class="flex items-center gap-1.5">
+<span class="beat-led w-2 h-2 rounded-full bg-slate-700 transition-all"></span><span class="beat-led w-2 h-2 rounded-full bg-slate-700 transition-all"></span><span class="beat-led w-2 h-2 rounded-full bg-slate-700 transition-all"></span><span class="beat-led w-2 h-2 rounded-full bg-slate-700 transition-all"></span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button id="btnBpmDown" type="button" class="w-7 h-7 rounded-lg bg-[#131d33] hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-700/80 flex items-center justify-center cursor-pointer">−</button>
+<div class="px-2.5 py-1 rounded-lg bg-[#080d18] border border-slate-800 text-xs font-bold text-slate-100 min-w-[74px] text-center"><span id="bpmValue">96</span> <span class="text-slate-400 font-semibold">BPM</span></div>
+<button id="btnBpmUp" type="button" class="w-7 h-7 rounded-lg bg-[#131d33] hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-700/80 flex items-center justify-center cursor-pointer">+</button>
+<select id="timeSigSelect" class="ml-1 bg-[#131d33] text-slate-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700/80 outline-none cursor-pointer"><option value="4" selected>4/4</option><option value="3">3/4</option><option value="6">6/8</option></select>
+</div>
+<div class="flex items-center gap-2.5 min-w-[200px] flex-1 sm:flex-initial justify-end">
+<span id="uiVolMetroLabel" class="text-[10px] font-bold uppercase tracking-wider text-slate-400">VOL. METRÔNOMO</span>
+<input id="sliderMetroVol" type="range" min="0" max="100" value="45" class="w-24 sm:w-28" />
+<span id="valMetroVol" class="text-xs font-semibold text-slate-300 w-8 text-right">45%</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-x-6 items-center">
+<div class="flex items-center gap-2.5"><span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span><span id="uiVolBaseLabel" class="text-xs font-semibold text-slate-300 shrink-0">Vol. Base (Pedal)</span><input id="sliderBaseVol" type="range" min="0" max="100" value="78" class="amber-thumb flex-1" /><span id="valBaseVol" class="text-xs font-bold text-slate-200 w-9 text-right">78%</span></div>
+<div class="flex items-center gap-2.5"><span class="w-2 h-2 rounded-full bg-sky-400 shrink-0"></span><span id="uiVolScaleLabel" class="text-xs font-semibold text-slate-300 shrink-0">Vol. Escala / Notas</span><input id="sliderScaleVol" type="range" min="0" max="100" value="88" class="flex-1" /><span id="valScaleVol" class="text-xs font-bold text-slate-200 w-9 text-right">88%</span></div>
+<div class="flex items-center gap-2.5 sm:col-span-2"><span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span><span id="uiVolMasterLabel" class="text-xs font-semibold text-slate-300 shrink-0">Volume Geral (Boost)</span><input id="sliderMasterVol" type="range" min="0" max="150" value="100" class="emerald-thumb flex-1" /><span id="valMasterVol" class="text-xs font-bold text-slate-200 w-10 text-right">100%</span></div>
+<div class="flex flex-wrap items-center gap-2 sm:col-span-2 pt-2 border-t border-slate-800/80">
+<span id="uiPresetLabel" class="text-[10px] font-bold uppercase tracking-wider text-slate-400">MIXAGEM</span>
+<button id="btnPresetStudy" type="button"></button>
+<button id="btnPresetBacking" type="button"></button>
+<button id="btnKeepAwake" type="button" class="ml-auto"></button>
+</div>
+</div>
+</section>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+<section class="lg:col-span-5 bg-[#0d1424] border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between gap-3.5 shadow-lg">
+<div class="flex items-center justify-between gap-2">
+<h2 id="uiStep1Title" class="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">1. ESCOLHA O CHEFE (PEDAL POINT)</h2>
+<div class="inline-flex bg-[#080d18] p-0.5 rounded-lg border border-slate-800">
+<button id="btnString6" type="button" class="px-2.5 py-1 rounded-md text-[11px] font-bold transition cursor-pointer">6ª Corda (E)</button>
+<button id="btnString5" type="button" class="px-2.5 py-1 rounded-md text-[11px] font-bold transition cursor-pointer">5ª Corda (A)</button>
+<button id="btnString7" type="button" class="hidden px-2.5 py-1 rounded-md text-[11px] font-bold transition cursor-pointer">7ª Corda (B)</button>
+</div>
+</div>
+<div id="bossGrid" class="grid grid-cols-6 gap-2"></div>
+</section>
+<section class="lg:col-span-7 bg-[#0d1424] border border-slate-800/90 rounded-2xl p-4 flex flex-col gap-3 shadow-lg">
+<div class="flex items-center justify-between">
+<h2 id="uiStep2Title" class="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">2. ESCOLHA O MODO GREGO</h2>
+<span id="uiFixedRulerBadge" class="text-[11px] font-semibold text-slate-400">Régua Fixa</span>
+</div>
+<div id="modesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+</section>
+</div>
+
+<section class="bg-[#0d1424] border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-lg">
+<div class="flex flex-wrap items-start justify-between gap-2">
+<div>
+<div id="uiStep3Label" class="text-[11px] font-extrabold uppercase tracking-wider text-amber-400 mb-1">3. RÉGUA GEOMÉTRICA NA MÃO (SEM CONTA)</div>
+<h2 id="rulerHeadline" class="text-lg sm:text-xl font-extrabold text-white tracking-tight"></h2>
+</div>
+<span id="genreBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35"></span>
+</div>
+<p id="rulerPracticalText" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+<div class="bg-[#080d18] border border-slate-800/90 rounded-xl p-3"><div id="uiBox1Title" class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 mb-1"></div><div id="box1Body" class="text-xs sm:text-[13px] font-bold text-slate-100"></div></div>
+<div class="bg-[#080d18] border border-slate-800/90 rounded-xl p-3"><div id="uiBox2Title" class="text-[10px] font-extrabold uppercase tracking-wider text-amber-400 mb-1"></div><div id="box2Body" class="text-xs sm:text-[13px] font-bold text-slate-100"></div></div>
+<div class="bg-[#080d18] border border-slate-800/90 rounded-xl p-3"><div id="uiBox3Title" class="text-[10px] font-extrabold uppercase tracking-wider text-sky-400 mb-1"></div><div id="box3Body" class="text-xs sm:text-[13px] font-bold text-slate-100"></div></div>
+</div>
+<div class="bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+<span id="parentShapeBadge" class="font-bold text-sky-400"></span>
+<span id="parentShapeHint" class="text-slate-400"></span>
+</div>
+</section>
+
+<section class="bg-[#0d1424] border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-lg">
+<div class="flex flex-wrap items-center justify-between gap-2">
+<div>
+<div class="flex flex-wrap items-center gap-2.5">
+<h2 id="uiFretboardTitle" class="text-sm sm:text-base font-extrabold text-white">Braço da Guitarra Interativo</h2>
+<span id="fretStartBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/35"></span>
+</div>
+<p id="uiFretboardSub" class="text-xs text-slate-400 mt-1"></p>
+</div>
+<div class="flex flex-wrap items-center gap-3 text-xs">
+<span class="inline-flex items-center gap-1.5 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span id="uiLegRoot">Chefe (Tônica)</span></span>
+<span class="inline-flex items-center gap-1.5 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span><span id="uiLegChar">Nota do Modo</span></span>
+<span class="inline-flex items-center gap-1.5 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-fuchsia-500"></span><span id="uiLegTarget">Nota Alvo</span></span>
+<span class="inline-flex items-center gap-1.5 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span><span id="uiLegScale">Escala</span></span>
+<button id="btnToggleLabels" type="button" class="px-2.5 py-1 rounded-lg bg-[#131d33] hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700/80 transition cursor-pointer">Ver: Notas / Graus</button>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-2 text-xs">
+<div class="inline-flex bg-[#080d18] p-0.5 rounded-lg border border-slate-800"><button id="btnStrings6" type="button"></button><button id="btnStrings7" type="button"></button></div>
+<label id="low7Wrap" class="hidden inline-flex items-center gap-1.5 text-slate-300"><span id="uiLow7Label"></span><select id="low7Select" class="bg-[#131d33] text-slate-200 text-xs font-semibold px-2 py-1 rounded-lg border border-slate-700/80 outline-none cursor-pointer"><option value="B">B (Si)</option><option value="A">A (Lá)</option></select></label>
+</div>
+<div class="fret-scroll overflow-x-auto rounded-xl border border-slate-800 bg-[#080d18] p-2.5"><div id="fretboardContainer" class="min-w-[820px]"></div></div>
+<div id="noteInfo" class="bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs sm:text-[13px] text-slate-300 min-h-[40px] flex items-center"></div>
+<div class="bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+<div class="flex flex-wrap items-center gap-2">
+<span id="footerBossBadge" class="px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/35 font-bold"></span>
+<span id="footerMoveText" class="text-slate-300 font-semibold"></span>
+<span id="footerTargetBadge" class="px-2.5 py-1 rounded-md bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/40 font-bold"></span>
+</div>
+<div id="footerNotesList" class="text-slate-400 font-semibold"></div>
+</div>
+</section>
+</div>
+
+<script>
+// ============ 1. DADOS ============
+const NOTES_SHARP=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const NOTE_SOLFEGE={pt:["Dó","Dó#","Ré","Ré#","Mi","Fá","Fá#","Sol","Sol#","Lá","Lá#","Si"],en:["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],es:["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"]};
+const GUITAR_STRINGS=[
+{num:1,label:"1ª (e)",labelEn:"1st (e)",openMidi:64,gauge:1.4},
+{num:2,label:"2ª (B)",labelEn:"2nd (B)",openMidi:59,gauge:1.8},
+{num:3,label:"3ª (G)",labelEn:"3rd (G)",openMidi:55,gauge:2.2},
+{num:4,label:"4ª (D)",labelEn:"4th (D)",openMidi:50,gauge:2.6},
+{num:5,label:"5ª (A)",labelEn:"5th (A)",openMidi:45,gauge:3.1},
+{num:6,label:"6ª (E)",labelEn:"6th (E)",openMidi:40,gauge:3.6}];
+function getStrings(){const a=[...GUITAR_STRINGS];
+  if(state.stringCount===7)a.push({num:7,label:`7ª (${state.low7})`,labelEn:`7th (${state.low7})`,openMidi:state.low7==="A"?33:35,gauge:4.2});return a;}
+const anchorName=t=>state.anchorString===7?t.string7Name:state.anchorString===6?t.string6Name:t.string5Name;
+const FRET_TOTAL=15,SINGLE_INLAYS=[3,5,7,9,15],DOUBLE_INLAYS=[12];
+
+const MODES_DATA=[
+{id:"mixolydian",shift:-2,parentOffset:-7,intervals:[0,2,4,5,7,9,10],degrees:["1","2","3","4","5","6","b7"],charDegrees:["b7"],
+names:{pt:"Mixolídio",en:"Mixolydian",es:"Mixolidio"},
+subs:{pt:"Maior com 7ª menor (b7)",en:"Major with minor 7th (b7)",es:"Mayor con 7ª menor (b7)"},
+genres:{pt:"Rock / Blues / Baião",en:"Rock / Blues / Baião",es:"Rock / Blues / Baião"},
+vamps:{pt:(r,t,p)=>`${r} → ${t} (ou ${r} → ${t} → ${p})`,en:(r,t,p)=>`${r} → ${t} (or ${r} → ${t} → ${p})`,es:(r,t,p)=>`${r} → ${t} (o ${r} → ${t} → ${p})`}},
+{id:"dorian",shift:-3,parentOffset:-2,intervals:[0,2,3,5,7,9,10],degrees:["1","2","b3","4","5","6","b7"],charDegrees:["6"],
+names:{pt:"Dórico",en:"Dorian",es:"Dórico"},
+subs:{pt:"Menor com 6ª maior (6)",en:"Minor with major 6th (6)",es:"Menor con 6ª mayor (6)"},
+genres:{pt:"Funk / Fusion / Santana",en:"Funk / Fusion / Santana",es:"Funk / Fusion / Santana"},
+vamps:{pt:(r,t)=>`${r}m → ${t} (ou ${r}m7 → ${t}7)`,en:(r,t)=>`${r}m → ${t} (or ${r}m7 → ${t}7)`,es:(r,t)=>`${r}m → ${t} (o ${r}m7 → ${t}7)`}},
+{id:"lydian",shift:2,parentOffset:7,intervals:[0,2,4,6,7,9,11],degrees:["1","2","3","#4","5","6","7"],charDegrees:["#4"],
+names:{pt:"Lídio",en:"Lydian",es:"Lidio"},
+subs:{pt:"Maior com 4ª aumentada (#4)",en:"Major with raised 4th (#4)",es:"Mayor con 4ª aumentada (#4)"},
+genres:{pt:"Trilhas / Vai / Dreamy",en:"Soundtracks / Vai / Dreamy",es:"Bandas Sonoras / Vai / Dreamy"},
+vamps:{pt:(r,t)=>`${r} → ${t} (com baixo em ${r})`,en:(r,t)=>`${r} → ${t} (over ${r} pedal)`,es:(r,t)=>`${r} → ${t} (con bajo en ${r})`}},
+{id:"phrygian",shift:1,parentOffset:-4,intervals:[0,1,3,5,7,8,10],degrees:["1","b2","b3","4","5","b6","b7"],charDegrees:["b2"],
+names:{pt:"Frígio",en:"Phrygian",es:"Frigio"},
+subs:{pt:"Menor com 2ª menor (b2)",en:"Minor with minor 2nd (b2)",es:"Menor con 2ª menor (b2)"},
+genres:{pt:"Flamenco / Metal / Tenso",en:"Flamenco / Metal / Tense",es:"Flamenco / Metal / Tenso"},
+vamps:{pt:(r,t)=>`${r}m → ${t} (tensão espanhola)`,en:(r,t)=>`${r}m → ${t} (Spanish tension)`,es:(r,t)=>`${r}m → ${t} (tensión española)`}},
+{id:"aeolian",shift:3,parentOffset:3,intervals:[0,2,3,5,7,8,10],degrees:["1","2","b3","4","5","b6","b7"],charDegrees:["b6"],
+names:{pt:"Eólio (Menor Natural)",en:"Aeolian (Natural Minor)",es:"Eólico (Menor Natural)"},
+subs:{pt:"Menor Natural (b3, b6, b7)",en:"Natural Minor (b3, b6, b7)",es:"Menor Natural (b3, b6, b7)"},
+genres:{pt:"Pop / Rock / Balada Épica",en:"Pop / Rock / Epic Ballad",es:"Pop / Rock / Balada Épica"},
+vamps:{pt:(r,t,p)=>`${r}m → ${t} → ${p}`,en:(r,t,p)=>`${r}m → ${t} → ${p}`,es:(r,t,p)=>`${r}m → ${t} → ${p}`}},
+{id:"ionian",shift:-1,parentOffset:0,intervals:[0,2,4,5,7,9,11],degrees:["1","2","3","4","5","6","7"],charDegrees:["7"],
+names:{pt:"Jônio (Maior Natural)",en:"Ionian (Natural Major)",es:"Jónico (Mayor Natural)"},
+subs:{pt:"Escala Maior Padrão (1 2 3 4 5 6...)",en:"Standard Major Scale (1 2 3 4 5 6...)",es:"Escala Mayor Estándar (1 2 3 4 5 6...)"},
+genres:{pt:"Pop / Gospel / Alegre",en:"Pop / Gospel / Bright",es:"Pop / Gospel / Alegre"},
+vamps:{pt:(r,t)=>`${r} → ${t} (cadência maior)`,en:(r,t)=>`${r} → ${t} (major cadence)`,es:(r,t)=>`${r} → ${t} (cadencia mayor)`}},
+{id:"locrian",shift:1,parentOffset:1,intervals:[0,1,3,5,6,8,10],degrees:["1","b2","b3","4","b5","b6","b7"],charDegrees:["b5"],
+names:{pt:"Lócrio",en:"Locrian",es:"Locrio"},
+subs:{pt:"Meio-Diminuto (b2, b3, b5, b6, b7)",en:"Half-Diminished (b2, b3, b5, b6, b7)",es:"Semidisminuido (b2, b3, b5, b6, b7)"},
+genres:{pt:"Metal Extremo / Jazz II-V",en:"Extreme Metal / Jazz II-V",es:"Metal Extremo / Jazz II-V"},
+vamps:{pt:(r,t)=>`${r}m7(b5) → ${t}`,en:(r,t)=>`${r}m7(b5) → ${t}`,es:(r,t)=>`${r}m7(b5) → ${t}`}}
+];
+
+const I18N={
+pt:{headerBadge:"Régua Geométrica",headerSubtitle:'Escolha o <strong class="text-slate-200 font-semibold">Chefe (Pedal Point)</strong> e veja o movimento exato no braço sem fazer conta.',
+btnPedalPlay:"Tocar Pedal + Base",btnPedalStop:"Parar Pedal + Base",btnScale:"Ouvir Escala",btnSlow:"Ouvir Lento",btnHarmony:"Ouvir Harmonia",btnMetro:"Metrônomo",
+volMetro:"VOL. METRÔNOMO",volBase:"Vol. Base (Pedal)",volScale:"Vol. Escala / Notas",volMaster:"Volume Geral (Boost)",
+step1Title:"1. ESCOLHA O CHEFE (PEDAL POINT)",str6:"6ª Corda (E)",str5:"5ª Corda (A)",step2Title:"2. ESCOLHA O MODO GREGO",fixedRuler:"Régua Fixa",
+step3Label:"3. RÉGUA GEOMÉTRICA NA MÃO (SEM CONTA)",box1Title:"PASSO 1 • ONDE COMEÇAR",box2Title:"PASSO 2 • MOVIMENTO DA RÉGUA",box3Title:"PASSO 3 • BASE HARMÔNICA",
+fretTitle:"Braço da Guitarra Interativo",fretSub:"Toque em qualquer bolinha no braço para ouvir a nota e sentir a sonoridade do modo.",
+legRoot:"Chefe (Tônica)",legChar:"Nota do Modo",legScale:"Escala",toggleLabelsNotes:"Ver: Notas / Graus",toggleLabelsDegrees:"Ver: Graus / Notas",
+fretWord:"Casa",fretsWord:"casas",fretSingleWord:"casa",legTarget:"Nota Alvo",presetLabel:"MIXAGEM",presetStudy:"Estudo / Fone",presetBacking:"Backing / Referência",strings6:"6 Cordas",strings7:"7 Cordas",low7Label:"7ª corda:",
+keepOn:"☀ Tela ativa: ON",keepOff:"☀ Tela ativa: OFF",keepNA:"☀ Tela ativa: indisponível",infoHint:"Toque numa casa para ver o grau e o intervalo em relação ao Chefe.",
+intervals:["Uníssono (Tônica)","2ª menor","2ª maior","3ª menor","3ª maior","4ª justa","Trítono","5ª justa","6ª menor","6ª maior","7ª menor","7ª maior"],
+info:(n,d,semi,iv,sl,f)=>`<strong class="text-white">${n}</strong>&nbsp;• Grau <strong class="text-emerald-300">${d}</strong>&nbsp;• ${iv} (${semi} ${semi===1?"semitom":"semitons"} do Chefe)&nbsp;• ${sl}, casa ${f}`,string6Name:"6ª corda",string5Name:"5ª corda",string7Name:"7ª corda",backWord:"ATRÁS",aheadWord:"À FRENTE",
+retreatAction:"Recua",advanceAction:"Avança",retreatCaps:"RECUAR",advanceCaps:"AVANÇAR",bossCaps:"CHEFE",targetCaps:"ALVO DO MODO",notesLabel:"Notas",stringWord:"CORDA",ofBoss:"do Chefe",
+startAt:(f,s)=>`Comece na Casa ${f} (${s})`,shapeOf:p=>`Shape de ${p} Maior (Jônio)`,
+shapeHint:(p,b,f)=>`Toque as mesmas notas da escala de ${p} Maior, mas comece, acentue e repouse sempre no Chefe ${b} (casa ${f}).`,
+practicalDesc:(b,f,s,back,abs,tf,tn,m)=>{const d=back?`${abs} ${abs===1?"casa para trás":"casas para trás"}`:`${abs} ${abs===1?"casa à frente":"casas à frente"}`;
+return `Você está na casa <strong class="text-white">${f} (${b})</strong> na ${s}. ${back?"Recue":"Avance"} <strong class="text-amber-300">${d}</strong> na mesma corda (${f} ${back?"-":"+"} ${abs} = <strong class="text-white">casa ${tf}</strong>) e você cai direto no <strong class="text-emerald-400">${tn}</strong>! Use o acorde de <strong class="text-white">${tn}</strong> na base para soar 100% ${b} ${m}.`;}},
+en:{headerBadge:"Geometric Ruler",headerSubtitle:'Pick the <strong class="text-slate-200 font-semibold">Boss (Pedal Point)</strong> and see the exact fretboard move with zero math.',
+btnPedalPlay:"Play Pedal + Backing",btnPedalStop:"Stop Pedal + Backing",btnScale:"Play Scale",btnSlow:"Play Slow",btnHarmony:"Play Harmony",btnMetro:"Metronome",
+volMetro:"METRONOME VOL.",volBase:"Backing Vol. (Pedal)",volScale:"Scale / Notes Vol.",volMaster:"Master Volume (Boost)",
+step1Title:"1. CHOOSE THE BOSS (PEDAL POINT)",str6:"6th String (E)",str5:"5th String (A)",step2Title:"2. CHOOSE THE GREEK MODE",fixedRuler:"Fixed Ruler",
+step3Label:"3. GEOMETRIC RULER IN HAND (NO MATH)",box1Title:"STEP 1 • WHERE TO START",box2Title:"STEP 2 • RULER MOVEMENT",box3Title:"STEP 3 • HARMONIC VAMP",
+fretTitle:"Interactive Guitar Fretboard",fretSub:"Tap any note circle on the neck to hear its pitch and feel the modal color.",
+legRoot:"Boss (Tonic)",legChar:"Mode Color Note",legScale:"Scale",toggleLabelsNotes:"View: Notes / Degrees",toggleLabelsDegrees:"View: Degrees / Notes",
+fretWord:"Fret",fretsWord:"frets",fretSingleWord:"fret",legTarget:"Target Note",presetLabel:"MIX",presetStudy:"Study / Headphones",presetBacking:"Backing / Reference",strings6:"6 Strings",strings7:"7 Strings",low7Label:"7th string:",
+keepOn:"☀ Screen on: ON",keepOff:"☀ Screen on: OFF",keepNA:"☀ Screen on: unavailable",infoHint:"Tap a fret to see its degree and interval from the Boss.",
+intervals:["Unison (Root)","Minor 2nd","Major 2nd","Minor 3rd","Major 3rd","Perfect 4th","Tritone","Perfect 5th","Minor 6th","Major 6th","Minor 7th","Major 7th"],
+info:(n,d,semi,iv,sl,f)=>`<strong class="text-white">${n}</strong>&nbsp;• Degree <strong class="text-emerald-300">${d}</strong>&nbsp;• ${iv} (${semi} ${semi===1?"semitone":"semitones"} from the Boss)&nbsp;• ${sl}, fret ${f}`,string6Name:"6th string",string5Name:"5th string",string7Name:"7th string",backWord:"BEHIND",aheadWord:"AHEAD OF",
+retreatAction:"Step back",advanceAction:"Step up",retreatCaps:"STEP BACK",advanceCaps:"STEP UP",bossCaps:"BOSS",targetCaps:"MODE TARGET",notesLabel:"Notes",stringWord:"STRING",ofBoss:"Boss",
+startAt:(f,s)=>`Start on Fret ${f} (${s})`,shapeOf:p=>`${p} Major (Ionian) Shape`,
+shapeHint:(p,b,f)=>`Play the exact notes of the ${p} Major scale, but always start, accent, and resolve on Boss ${b} (fret ${f}).`,
+practicalDesc:(b,f,s,back,abs,tf,tn,m)=>{const d=`${abs} ${abs===1?"fret":"frets"} ${back?"back":"forward"}`;
+return `You are on fret <strong class="text-white">${f} (${b})</strong> on the ${s}. ${back?"Move":"Slide"} <strong class="text-amber-300">${d}</strong> on the same string (${f} ${back?"-":"+"} ${abs} = <strong class="text-white">fret ${tf}</strong>) and you land straight on <strong class="text-emerald-400">${tn}</strong>! Play the <strong class="text-white">${tn}</strong> chord underneath to sound 100% ${b} ${m}.`;}},
+es:{headerBadge:"Regla Geométrica",headerSubtitle:'Elige el <strong class="text-slate-200 font-semibold">Jefe (Pedal Point)</strong> y mira el movimiento exacto en el mástil sin hacer cuentas.',
+btnPedalPlay:"Tocar Pedal + Base",btnPedalStop:"Parar Pedal + Base",btnScale:"Oír Escala",btnSlow:"Oír Lento",btnHarmony:"Oír Armonía",btnMetro:"Metrónomo",
+volMetro:"VOL. METRÓNOMO",volBase:"Vol. Base (Pedal)",volScale:"Vol. Escala / Notas",volMaster:"Volumen General (Boost)",
+step1Title:"1. ELIGE EL JEFE (PEDAL POINT)",str6:"6ª Cuerda (E)",str5:"5ª Cuerda (A)",step2Title:"2. ELIGE EL MODO GRIEGO",fixedRuler:"Regla Fija",
+step3Label:"3. REGLA GEOMÉTRICA EN MANO (SIN CUENTAS)",box1Title:"PASO 1 • DÓNDE EMPEZAR",box2Title:"PASO 2 • MOVIMIENTO DE LA REGLA",box3Title:"PASO 3 • BASE ARMÓNICA",
+fretTitle:"Mástil de Guitarra Interactivo",fretSub:"Toca cualquier círculo en el mástil para escuchar la nota y sentir la sonoridad del modo.",
+legRoot:"Jefe (Tónica)",legChar:"Nota del Modo",legScale:"Escala",toggleLabelsNotes:"Ver: Notas / Grados",toggleLabelsDegrees:"Ver: Grados / Notas",
+fretWord:"Traste",fretsWord:"trastes",fretSingleWord:"traste",legTarget:"Nota Objetivo",presetLabel:"MEZCLA",presetStudy:"Estudio / Auriculares",presetBacking:"Backing / Referencia",strings6:"6 Cuerdas",strings7:"7 Cuerdas",low7Label:"7ª cuerda:",
+keepOn:"☀ Pantalla activa: ON",keepOff:"☀ Pantalla activa: OFF",keepNA:"☀ Pantalla activa: no disponible",infoHint:"Toca un traste para ver el grado y el intervalo respecto al Jefe.",
+intervals:["Unísono (Tónica)","2ª menor","2ª mayor","3ª menor","3ª mayor","4ª justa","Tritono","5ª justa","6ª menor","6ª mayor","7ª menor","7ª mayor"],
+info:(n,d,semi,iv,sl,f)=>`<strong class="text-white">${n}</strong>&nbsp;• Grado <strong class="text-emerald-300">${d}</strong>&nbsp;• ${iv} (${semi} ${semi===1?"semitono":"semitonos"} del Jefe)&nbsp;• ${sl}, traste ${f}`,string6Name:"6ª cuerda",string5Name:"5ª cuerda",string7Name:"7ª cuerda",backWord:"ATRÁS DEL",aheadWord:"ADELANTE DEL",
+retreatAction:"Retrocede",advanceAction:"Avanza",retreatCaps:"RETROCEDER",advanceCaps:"AVANZAR",bossCaps:"JEFE",targetCaps:"OBJETIVO DEL MODO",notesLabel:"Notas",stringWord:"CUERDA",ofBoss:"Jefe",
+startAt:(f,s)=>`Empieza en Traste ${f} (${s})`,shapeOf:p=>`Shape de ${p} Mayor (Jónico)`,
+shapeHint:(p,b,f)=>`Toca las mismas notas de la escala de ${p} Mayor, pero empieza, acentúa y reposa siempre en el Jefe ${b} (traste ${f}).`,
+practicalDesc:(b,f,s,back,abs,tf,tn,m)=>{const d=back?`${abs} ${abs===1?"traste hacia atrás":"trastes hacia atrás"}`:`${abs} ${abs===1?"traste hacia adelante":"trastes hacia adelante"}`;
+return `Estás en el traste <strong class="text-white">${f} (${b})</strong> en la ${s}. ${back?"Retrocede":"Avanza"} <strong class="text-amber-300">${d}</strong> en la misma cuerda (${f} ${back?"-":"+"} ${abs} = <strong class="text-white">traste ${tf}</strong>) ¡y caes directo en <strong class="text-emerald-400">${tn}</strong>! Usa el acorde de <strong class="text-white">${tn}</strong> en la base para sonar 100% ${b} ${m}.`;}}
+};
+
+// ============ 2. ESTADO ============
+const state={lang:"pt",bossNoteIndex:11,anchorString:6,modeId:"mixolydian",showDegrees:false,bpm:96,beatsPerBar:4,
+metroVol:.45,backingVol:.78,scaleVol:.88,masterVol:1,pedalPlaying:false,metroPlaying:false};
+Object.assign(state,{preset:null,stringCount:6,low7:"B",sel:null,keepAwake:true});
+try{const v=localStorage.getItem("mm_keepAwake");if(v!==null)state.keepAwake=v==="1";}catch(e){}
+const isActive=()=>state.pedalPlaying||state.metroPlaying;
+const vcurve=v=>Math.pow(Math.max(0,v),1.6); // curva exponencial de volume (mais fina nos níveis baixos)
+
+// ============ 3. MOTOR DE ÁUDIO (alto, agendado pelo relógio do Web Audio) ============
+const LOOKAHEAD=.3,TICK_MS=25,MASTER_GAIN=1.5;
+let audioCtx=null,master=null,busBase=null,busMetro=null,busScale=null,scaleBus=null,scaleTimeouts=[];
+const bk={on:false,next:0,step:0},mt={on:false,next:0,beat:0};
+
+function buildBus(){
+  if(master||!audioCtx)return;
+  master=audioCtx.createGain();master.gain.value=vcurve(state.masterVol)*MASTER_GAIN;
+  // um bus por fonte, com headroom: metrônomo + pedal + notas juntos não estouram
+  [busBase,busMetro,busScale]=[0,1,2].map(()=>{const b=audioCtx.createGain();b.gain.value=.9;b.connect(master);return b;});
+  // compressor suave (cola as vozes) + limitador final (nunca estoura/distorce)
+  const comp=audioCtx.createDynamicsCompressor();
+  comp.threshold.value=-18;comp.knee.value=24;comp.ratio.value=3;comp.attack.value=.01;comp.release.value=.25;
+  const lim=audioCtx.createDynamicsCompressor();
+  lim.threshold.value=-2;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.001;lim.release.value=.08;
+  master.connect(comp);comp.connect(lim);lim.connect(audioCtx.destination);
+}
+function applyMasterGain(){if(master)master.gain.setTargetAtTime(vcurve(state.masterVol)*MASTER_GAIN,audioCtx.currentTime,.02);}
+function ensureAudio(){
+  if(!audioCtx){
+    const C=window.AudioContext||window.webkitAudioContext;
+    if(C){try{audioCtx=new C({latencyHint:"playback"});}catch(e){audioCtx=new C();}
+      audioCtx.onstatechange=()=>{if(audioCtx.state!=="running"&&isActive())audioCtx.resume().catch(()=>{});};}
+  }
+  if(audioCtx){buildBus();if(audioCtx.state!=="running")audioCtx.resume().catch(()=>{});}
+  try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){}
+}
+const midiToFreq=m=>440*Math.pow(2,(m-69)/12);
+
+// Tom suave (baixo / acordes): camadas normalizadas, o pico nunca passa do valor pedido
+function tone(layers,freq,when,dur,peak,atk,lp0,lp1,out){
+  const t=Math.max(when||0,audioCtx.currentTime),sum=layers.reduce((a,l)=>a+l[2],0);
+  const filter=audioCtx.createBiquadFilter(),gain=audioCtx.createGain();
+  filter.type="lowpass";filter.frequency.setValueAtTime(lp0,t);
+  filter.frequency.exponentialRampToValueAtTime(Math.max(120,lp1),t+dur*.9);
+  gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(Math.max(.0001,peak),t+atk);
+  gain.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  layers.forEach(([type,mult,g])=>{
+    const o=audioCtx.createOscillator(),og=audioCtx.createGain();
+    o.type=type;o.frequency.setValueAtTime(freq*mult,t);og.gain.value=g/sum;
+    o.connect(og);og.connect(filter);o.start(t);o.stop(t+dur+.08);
+  });
+  filter.connect(gain);gain.connect(out||busBase);
+}
+
+// Corda de violão/guitarra real (Karplus-Strong): nota afinada, natural, sem distorção
+const ksCache=new Map();
+function ksBuffer(freq,len){
+  const sr=audioCtx.sampleRate,key=`${Math.round(freq*10)}|${len}|${sr}`;
+  if(ksCache.has(key))return ksCache.get(key);
+  if(ksCache.size>160)ksCache.clear();
+  const n=Math.floor(sr*len/20),N=Math.max(2,Math.round(sr/freq)),ring=new Float32Array(N),out=new Float32Array(n);
+  let p=0;for(let i=0;i<N;i++){p=p*.55+(Math.random()*2-1)*.45;ring[i]=p;}
+  let idx=0,max=0;
+  for(let i=0;i<n;i++){
+    const cur=ring[idx],nxt=ring[(idx+1)%N];
+    out[i]=cur;ring[idx]=.5*(cur+nxt)*.9965;idx=(idx+1)%N;
+    if(Math.abs(cur)>max)max=Math.abs(cur);
+  }
+  const fade=Math.floor(sr*.05);
+  for(let i=0;i<n;i++){let v=out[i]/(max||1);if(i>n-fade)v*=(n-i)/fade;out[i]=v;}
+  const ab=audioCtx.createBuffer(1,n,sr);ab.copyToChannel(out,0);ksCache.set(key,ab);return ab;
+}
+function playGuitarPluck(midi,dur=.65,vel=1,when=0,out=null,vol){
+  ensureAudio();vol=vol===undefined?vcurve(state.scaleVol):vol;if(!audioCtx||vol<=.001)return;
+  const t=Math.max(when,audioCtx.currentTime),f=midiToFreq(midi),len=Math.max(20,Math.round(Math.max(.7,dur*1.5)*20));
+  const src=audioCtx.createBufferSource();src.buffer=ksBuffer(f,len);
+  const filter=audioCtx.createBiquadFilter();filter.type="lowpass";filter.frequency.value=Math.min(6000,f*9);
+  const g=audioCtx.createGain(),total=len/20;
+  g.gain.setValueAtTime(Math.max(.0001,vol*.5*vel),t);g.gain.exponentialRampToValueAtTime(.0001,t+total);
+  src.connect(filter);filter.connect(g);g.connect(out||busScale);src.start(t);src.stop(t+total+.05);
+}
+// Baixo redondo: fundamental + 2º harmônico (audível em alto-falante pequeno) sem aspereza
+function playSoftPedalPulse(midi,dur=1.35,vel=1,when=0){
+  ensureAudio();if(!audioCtx||vcurve(state.backingVol)<=.001)return;
+  const f=midiToFreq(midi);
+  tone([["sine",1,1],["triangle",1,.35],["sine",2,.38]],f,when,dur,vcurve(state.backingVol)*.42*vel,.02,520,Math.max(260,f*2.5),null);
+}
+// Acorde estilo piano elétrico
+function playModalChord(notes,dur=1.4,vel=.85,when=0){
+  ensureAudio();if(!audioCtx||vcurve(state.backingVol)<=.001)return;
+  const per=vcurve(state.backingVol)*.2*vel/Math.sqrt(Math.max(1,notes.length));
+  notes.forEach(m=>tone([["sine",1,1],["sine",2,.3],["triangle",1,.25]],midiToFreq(m),when,dur,per,.03,1800,500,null));
+}
+function playSoftMetronomeClick(accent,when=0){
+  ensureAudio();if(!audioCtx||vcurve(state.metroVol)<=.001)return;
+  const t=Math.max(when,audioCtx.currentTime),o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type="sine";o.frequency.setValueAtTime(accent?1046.5:784,t); // Dó6 / Sol5
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(Math.max(.0001,vcurve(state.metroVol)*(accent?.55:.38)),t+.004);
+  g.gain.exponentialRampToValueAtTime(.0001,t+.08);
+  o.connect(g);g.connect(busMetro);o.start(t);o.stop(t+.1);
+}
+function getModalProgression(id,root){
+  const r=root+12;
+  switch(id){
+    case"mixolydian":return[[r,r+4,r+7,r+10],[r-2,r+2,r+5,r+9]];
+    case"dorian":return[[r,r+3,r+7,r+10],[r+5,r+9,r+12,r+15]];
+    case"lydian":return[[r,r+4,r+7,r+11],[r+2,r+6,r+9,r+13]];
+    case"phrygian":return[[r,r+3,r+7,r+10],[r+1,r+5,r+8,r+12]];
+    case"aeolian":return[[r,r+3,r+7,r+10],[r+8,r+12,r+15]];
+    case"locrian":return[[r,r+3,r+6,r+10],[r+1,r+5,r+8]];
+    default:return[[r,r+4,r+7,r+11],[r+5,r+9,r+12,r+16]];
+  }
+}
+
+// Agendador: Worker (não sofre throttle em segundo plano / tela bloqueada)
+let worker=null,fallbackId=null;
+function startTicker(){
+  if(worker||fallbackId)return;
+  try{const url=URL.createObjectURL(new Blob([`setInterval(()=>postMessage(1),${TICK_MS})`],{type:"text/javascript"}));
+    worker=new Worker(url);worker.onmessage=tick;}catch(e){fallbackId=setInterval(tick,TICK_MS);}
+}
+function stopTickerIfIdle(){
+  if(bk.on||mt.on)return;
+  if(worker){worker.terminate();worker=null;}
+  if(fallbackId){clearInterval(fallbackId);fallbackId=null;}
+}
+function tick(){if(!audioCtx)return;if(bk.on)schedBacking();if(mt.on)schedMetro();}
+
+function backingBeat(step,t){
+  const beatSec=60/state.bpm,per=Math.max(3,state.beatsPerBar===6?3:state.beatsPerBar);
+  const mode=getActiveMode(),pedal=36+state.bossNoteIndex,prog=getModalProgression(mode.id,pedal);
+  const chord=prog[Math.floor(step/per)%prog.length],b=step%per;
+  if(b===0){playSoftPedalPulse(pedal,Math.min(1.65,beatSec*1.95),1,t);playModalChord(chord,Math.min(1.5,beatSec*1.85),.92,t);}
+  else if(b===1&&per>=4)playSoftPedalPulse(pedal,Math.min(.65,beatSec*.75),.42,t+beatSec*.5);
+  else if(b===2){playSoftPedalPulse(pedal,Math.min(1.25,beatSec*1.45),.72,t);playModalChord(chord,Math.min(1.05,beatSec*1.3),.5,t);}
+  else if(b===per-1)playSoftPedalPulse(mode.id==="locrian"?pedal+12:pedal+7,Math.min(.55,beatSec*.65),.36,t+beatSec*.5);
+}
+function schedBacking(){
+  if(bk.next<audioCtx.currentTime-.1)bk.next=audioCtx.currentTime+.05;
+  while(bk.next<audioCtx.currentTime+LOOKAHEAD){backingBeat(bk.step,bk.next);bk.next+=60/state.bpm;bk.step++;}
+}
+function schedMetro(){
+  if(mt.next<audioCtx.currentTime-.1)mt.next=audioCtx.currentTime+.05;
+  while(mt.next<audioCtx.currentTime+LOOKAHEAD){
+    const pos=mt.beat%state.beatsPerBar;
+    playSoftMetronomeClick(pos===0,mt.next);
+    setTimeout(()=>{if(mt.on)updateBeatLeds(pos);},Math.max(0,(mt.next-audioCtx.currentTime)*1000));
+    mt.next+=60/state.bpm;mt.beat++;
+  }
+}
+function updateBeatLeds(idx){
+  document.querySelectorAll(".beat-led").forEach((led,i)=>{
+    if(idx>=0&&i===idx%4){led.classList.remove("bg-slate-700");led.classList.add(i===0?"bg-amber-400":"bg-sky-400","scale-125");}
+    else{led.classList.remove("bg-amber-400","bg-sky-400","scale-125");led.classList.add("bg-slate-700");}
+  });
+}
+function syncPedalAndBacking(){
+  if(state.pedalPlaying){ensureAudio();if(!bk.on){bk.on=true;bk.step=0;bk.next=audioCtx.currentTime+.06;}startTicker();schedBacking();}
+  else bk.on=false;
+  stopTickerIfIdle();afterPlayState();
+}
+function syncMetronome(){
+  if(state.metroPlaying){ensureAudio();if(!mt.on){mt.on=true;mt.beat=0;mt.next=audioCtx.currentTime+.06;}startTicker();schedMetro();}
+  else{mt.on=false;updateBeatLeds(-1);}
+  stopTickerIfIdle();afterPlayState();
+}
+function stopScaleSequence(){
+  scaleTimeouts.forEach(id=>clearTimeout(id));scaleTimeouts=[];
+  document.querySelectorAll(".note-dot.active-pulse").forEach(el=>el.classList.remove("active-pulse"));
+  if(scaleBus){try{scaleBus.disconnect();}catch(e){}scaleBus=null;}
+}
+function playScaleUpAndDown(slow,onlyUp){
+  stopScaleSequence();ensureAudio();if(!audioCtx)return;
+  const mode=getActiveMode(),str=getStrings().find(s=>s.num===state.anchorString);
+  const root=str.openMidi+getBossFretOnString(state.bossNoteIndex,state.anchorString);
+  const up=[...mode.intervals.map(iv=>root+iv),root+12],run=onlyUp?up:[...up,...up.slice(0,-1).reverse()];
+  const stepSec=60/(onlyUp?state.bpm*1.8:slow?state.bpm*.55:state.bpm*1.15),t0=audioCtx.currentTime+.05;
+  scaleBus=audioCtx.createGain();scaleBus.connect(busScale);
+  run.forEach((midi,i)=>{
+    const at=t0+i*stepSec;
+    playGuitarPluck(midi,stepSec*1.15,(i===0||i===up.length-1||i===run.length-1)?1.05:.88,at,scaleBus);
+    scaleTimeouts.push(setTimeout(()=>{
+      document.querySelectorAll(`.note-dot[data-midi="${midi}"]`).forEach(d=>{
+        d.classList.add("active-pulse");setTimeout(()=>d.classList.remove("active-pulse"),Math.max(140,stepSec*780));});
+    },Math.max(0,(at-audioCtx.currentTime)*1000)));
+  });
+}
+
+function playModeHarmony(){
+  stopScaleSequence();ensureAudio();if(!audioCtx)return;
+  const mode=getActiveMode(),pedal=36+state.bossNoteIndex,prog=getModalProgression(mode.id,pedal);
+  const t=audioCtx.currentTime+.05,gap=1.1;
+  playSoftPedalPulse(pedal,1.5,1,t);playModalChord(prog[0],1.4,.95,t);                 // acorde do Chefe (tônica do modo)
+  playSoftPedalPulse(prog[1][0]-12,1.5,.9,t+gap);playModalChord(prog[1],1.5,.95,t+gap); // acorde-alvo do modo (base harmônica)
+  const rootPc=pedal%12,targetPc=prog[1][0]%12;
+  [[rootPc,0],[targetPc,gap]].forEach(([pc,delay])=>setTimeout(()=>{
+    document.querySelectorAll(".note-dot").forEach(d=>{
+      if(Number(d.dataset.midi)%12===pc){d.classList.add("active-pulse");setTimeout(()=>d.classList.remove("active-pulse"),900);}
+    });
+  },delay*1000));
+}
+
+// ---- Tela ativa (Wake Lock) ----
+let wl=null,wlPending=false;
+async function acquireWL(){
+  if(wl||wlPending||!state.keepAwake||!("wakeLock" in navigator)||document.visibilityState!=="visible")return;
+  wlPending=true;
+  try{wl=await navigator.wakeLock.request("screen");wl.addEventListener("release",()=>{wl=null;});}catch(e){wl=null;}
+  wlPending=false;
+}
+function releaseWL(){if(wl){wl.release().catch(()=>{});wl=null;}}
+
+// ---- Áudio de sessão silencioso: mantém a página "tocando" com a tela bloqueada ----
+let sessionEl=null;
+function makeSilentWav(){
+  const n=8000,buf=new ArrayBuffer(44+n),v=new DataView(buf);
+  const w=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
+  for(let i=0;i<n;i++)v.setUint8(44+i,i%97===0?129:128);
+  return URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));
+}
+function setSession(on){
+  if(!sessionEl){sessionEl=new Audio(makeSilentWav());sessionEl.loop=true;sessionEl.setAttribute("playsinline","");}
+  if(on)sessionEl.play().catch(()=>{});else sessionEl.pause();
+}
+
+// ---- Media Session (tela de bloqueio) ----
+const artCache={};
+function makeArt(note,label){
+  const key=note+label;if(artCache[key])return artCache[key];
+  const c=document.createElement("canvas");c.width=c.height=512;const g=c.getContext("2d");
+  const bg=g.createLinearGradient(0,0,512,512);bg.addColorStop(0,"#0d1424");bg.addColorStop(1,"#070b14");
+  g.fillStyle=bg;g.fillRect(0,0,512,512);
+  g.fillStyle="#10b981";g.beginPath();g.arc(256,210,130,0,Math.PI*2);g.fill();
+  g.fillStyle="#020617";g.font="800 150px Inter,system-ui,sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText(note,256,215);
+  g.fillStyle="#fbbf24";g.font="700 46px Inter,system-ui,sans-serif";g.fillText(label,256,405);
+  return(artCache[key]=c.toDataURL("image/png"));
+}
+function updateMediaSession(){
+  if(!("mediaSession" in navigator)||typeof MediaMetadata==="undefined")return;
+  const mode=getActiveMode(),boss=NOTES_SHARP[state.bossNoteIndex],name=mode.names[state.lang];
+  try{
+    navigator.mediaSession.metadata=new MediaMetadata({title:`${boss} ${name}`,artist:`ModoMestre • Pedal ${boss}`,album:I18N[state.lang].headerBadge,
+      artwork:[{src:makeArt(boss,name),sizes:"512x512",type:"image/png"}]});
+    navigator.mediaSession.playbackState=isActive()?"playing":"paused";
+  }catch(e){}
+}
+function bindMediaActions(){
+  if(!("mediaSession" in navigator))return;
+  const set=(a,fn)=>{try{navigator.mediaSession.setActionHandler(a,fn);}catch(e){}};
+  const click=id=>document.getElementById(id).click();
+  const stopAll=()=>{if(state.pedalPlaying)click("btnPedalBase");if(state.metroPlaying)click("btnMetronome");};
+  const cycle=d=>{const i=MODES_DATA.findIndex(m=>m.id===state.modeId);state.modeId=MODES_DATA[(i+d+MODES_DATA.length)%MODES_DATA.length].id;renderAll();};
+  set("play",()=>{if(!state.pedalPlaying)click("btnPedalBase");});set("pause",stopAll);set("stop",stopAll);
+  set("nexttrack",()=>cycle(1));set("previoustrack",()=>cycle(-1));
+}
+function afterPlayState(){
+  if(isActive()){setSession(true);acquireWL();}else{setSession(false);releaseWL();}
+  updateMediaSession();
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible"&&isActive())acquireWL();
+  if(audioCtx&&isActive()&&audioCtx.state!=="running")audioCtx.resume().catch(()=>{});
+});
+
+// ============ 4. LÓGICA E RENDER ============
+function getActiveMode(){return MODES_DATA.find(m=>m.id===state.modeId)||MODES_DATA[0];}
+function getBossFretOnString(noteIndex,stringNum){
+  const openIdx=(getStrings().find(x=>x.num===stringNum)||GUITAR_STRINGS[5]).openMidi%12;let fret=(noteIndex-openIdx+12)%12;if(fret===0)fret=12;return fret;
+}
+function renderBossGrid(){
+  const grid=document.getElementById("bossGrid");grid.innerHTML="";const sol=NOTE_SOLFEGE[state.lang];
+  NOTES_SHARP.forEach((n,idx)=>{
+    const sel=idx===state.bossNoteIndex,btn=document.createElement("button");btn.type="button";
+    btn.className=sel?"rounded-xl py-2 px-1 flex flex-col items-center justify-center bg-emerald-500 text-slate-950 font-extrabold shadow-[0_0_16px_rgba(16,185,129,0.45)] border border-emerald-300 transition cursor-pointer"
+      :"rounded-xl py-2 px-1 flex flex-col items-center justify-center bg-[#080d18] hover:bg-[#131d33] text-slate-200 font-bold border border-slate-800 transition cursor-pointer";
+    btn.innerHTML=`<span class="text-xs sm:text-sm leading-tight">${n}</span><span class="text-[10px] ${sel?"text-slate-900 font-bold":"text-slate-400 font-medium"}">${sol[idx]}</span>`;
+    btn.addEventListener("click",()=>{
+      state.bossNoteIndex=idx;const s=getStrings().find(x=>x.num===state.anchorString);
+      playGuitarPluck(s.openMidi+getBossFretOnString(idx,state.anchorString),.55,.9);renderAll();
+    });
+    grid.appendChild(btn);
+  });
+}
+function renderModesGrid(){
+  const grid=document.getElementById("modesGrid");grid.innerHTML="";const t=I18N[state.lang];
+  MODES_DATA.forEach(mode=>{
+    const sel=mode.id===state.modeId,abs=Math.abs(mode.shift),sign=mode.shift>0?"+":"-";
+    const label=`${sign}${abs} ${abs===1?t.fretSingleWord:t.fretsWord}`,btn=document.createElement("button");btn.type="button";
+    btn.className=sel?"rounded-xl p-2.5 text-left bg-[#121e38] border border-sky-400/80 shadow-[0_0_14px_rgba(56,189,248,0.18)] flex flex-col gap-1 transition cursor-pointer"
+      :"rounded-xl p-2.5 text-left bg-[#080d18] hover:bg-[#11192c] border border-slate-800/90 flex flex-col gap-1 transition cursor-pointer";
+    const badge=mode.shift<0?"bg-amber-500/15 text-amber-300 border-amber-500/35":"bg-sky-500/15 text-sky-300 border-sky-500/35";
+    btn.innerHTML=`<div class="flex items-center justify-between gap-2 w-full"><span class="text-xs sm:text-[13px] font-bold ${sel?"text-white":"text-slate-200"}">${mode.names[state.lang]}</span><span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md border ${badge} shrink-0">${label}</span></div><div class="text-[11px] text-slate-400 truncate w-full">${mode.subs[state.lang]}</div>`;
+    btn.addEventListener("click",()=>{state.modeId=mode.id;renderAll();});
+    grid.appendChild(btn);
+  });
+}
+function renderRulerBanner(){
+  const t=I18N[state.lang],mode=getActiveMode(),boss=NOTES_SHARP[state.bossNoteIndex];
+  const start=getBossFretOnString(state.bossNoteIndex,state.anchorString),back=mode.shift<0,abs=Math.abs(mode.shift);
+  const tf=start+mode.shift,tn=NOTES_SHARP[(state.bossNoteIndex+mode.shift+12)%12],pn=NOTES_SHARP[(state.bossNoteIndex+mode.parentOffset+12)%12];
+  const sn=anchorName(t),unit=abs===1?t.fretSingleWord:t.fretsWord,$=id=>document.getElementById(id);
+  $("rulerHeadline").textContent=`${boss} ${mode.names[state.lang]} = ${abs} ${unit} ${back?t.backWord:t.aheadWord} ${t.ofBoss}`;
+  $("genreBadge").textContent=mode.genres[state.lang];
+  $("rulerPracticalText").innerHTML=t.practicalDesc(boss,start,sn,back,abs,tf,tn,mode.names[state.lang]);
+  $("box1Body").textContent=`${boss} (${t.fretWord} ${start} • ${sn})`;
+  $("box2Body").textContent=`${back?t.retreatAction:t.advanceAction} ${abs} ${unit} → ${t.fretWord} ${tf} (${tn})`;
+  $("box3Body").textContent=mode.vamps[state.lang](boss,tn,pn);
+  $("parentShapeBadge").textContent=t.shapeOf(pn);$("parentShapeHint").textContent=t.shapeHint(pn,boss,start);
+  $("fretStartBadge").textContent=t.startAt(start,sn);
+  $("footerBossBadge").textContent=`${t.bossCaps}: ${boss} (${t.fretWord} ${start})`;
+  $("footerMoveText").textContent=`↔ ${back?t.retreatCaps:t.advanceCaps} ${abs} ${unit} (${sn})`;
+  $("footerTargetBadge").textContent=`${t.targetCaps}: ${tn} (${t.fretWord} ${tf})`;
+  $("footerNotesList").textContent=`${t.notesLabel}: ${mode.intervals.map(iv=>NOTES_SHARP[(state.bossNoteIndex+iv)%12]).join(" - ")}`;
+}
+function renderFretboard(){
+  const container=document.getElementById("fretboardContainer");container.innerHTML="";
+  const mode=getActiveMode(),targetPc=(state.bossNoteIndex+mode.shift+12)%12,i2d=new Map();mode.intervals.forEach((iv,i)=>i2d.set(iv,mode.degrees[i]));
+  const cols="58px repeat(16, minmax(0, 1fr))",head=document.createElement("div");
+  head.className="grid items-center mb-1.5 text-[11px] font-bold text-slate-400";head.style.gridTemplateColumns=cols;
+  const corner=document.createElement("div");corner.className="text-center text-[10px] uppercase tracking-wider text-slate-500";
+  corner.textContent=I18N[state.lang].stringWord;head.appendChild(corner);
+  for(let f=0;f<=FRET_TOTAL;f++){
+    const c=document.createElement("div");c.className="text-center";
+    if([3,5,7,9,12,15].includes(f))c.innerHTML=`<span class="px-1.5 py-0.5 rounded bg-slate-800/90 text-slate-200">${f}</span>`;else c.textContent=f;
+    head.appendChild(c);
+  }
+  container.appendChild(head);
+  const wood=document.createElement("div");wood.className="fretboard-wood rounded-xl border border-amber-950/80 py-1.5 relative";
+  getStrings().forEach((so,si)=>{
+    const row=document.createElement("div");row.className="grid items-center h-9 relative";row.style.gridTemplateColumns=cols;
+    const wire=document.createElement("div");wire.className="absolute left-[58px] right-0 top-1/2 -translate-y-1/2 pointer-events-none z-0";
+    wire.style.height=`${so.gauge}px`;wire.style.background="linear-gradient(90deg, #cbd5e1, #94a3b8)";wire.style.opacity=".75";row.appendChild(wire);
+    const lab=document.createElement("div");lab.className="text-center text-xs font-bold text-slate-300 z-10";
+    lab.textContent=state.lang==="en"?so.labelEn:so.label;row.appendChild(lab);
+    for(let fret=0;fret<=FRET_TOTAL;fret++){
+      const cell=document.createElement("div");cell.className="h-full flex items-center justify-center relative z-10";
+      cell.style.borderRight=fret===0?"3px solid #e2e8f0":"1px solid rgba(226, 232, 240, 0.22)";
+      if(si===2&&SINGLE_INLAYS.includes(fret)){const i=document.createElement("span");i.className="w-2.5 h-2.5 rounded-full bg-amber-100/15 absolute pointer-events-none";cell.appendChild(i);}
+      if((si===1||si===4)&&DOUBLE_INLAYS.includes(fret)){const i=document.createElement("span");i.className="w-2.5 h-2.5 rounded-full bg-amber-100/20 absolute pointer-events-none";cell.appendChild(i);}
+      const midi=so.openMidi+fret,pc=midi%12,rel=(pc-state.bossNoteIndex+12)%12;
+      if(i2d.has(rel)){
+        const deg=i2d.get(rel),isRoot=rel===0,isTarget=!isRoot&&pc===targetPc,isChar=mode.charDegrees.includes(deg),dot=document.createElement("button");
+        dot.type="button";dot.dataset.midi=midi;dot.dataset.key=`${so.num}-${fret}`;dot.dataset.deg=deg;dot.dataset.rel=rel;dot.dataset.fret=fret;dot.dataset.str=state.lang==="en"?so.labelEn:so.label;
+        let cc="w-[22px] h-[22px] sm:w-6 sm:h-6 bg-sky-700/80 text-sky-50 ring-1 ring-sky-300/30";
+        if(isRoot)cc="w-7 h-7 sm:w-[30px] sm:h-[30px] bg-emerald-400 text-slate-950 ring-[3px] ring-white shadow-[0_0_14px_rgba(52,211,153,0.9)]";
+        else if(isTarget)cc="w-6 h-6 sm:w-[27px] sm:h-[27px] bg-fuchsia-500 text-white ring-2 ring-fuchsia-200 shadow-[0_0_12px_rgba(217,70,239,0.8)]";
+        else if(isChar)cc="w-6 h-6 sm:w-[26px] sm:h-[26px] bg-amber-400 text-slate-950 ring-1 ring-amber-200 shadow-[0_0_10px_rgba(251,191,36,0.65)]";
+        dot.className=`note-dot rounded-full text-[10px] font-extrabold flex items-center justify-center cursor-pointer ${cc}${state.sel===dot.dataset.key?" sel-dot":""}`;
+        dot.textContent=state.showDegrees?deg:NOTES_SHARP[pc];
+        dot.addEventListener("pointerdown",e=>{e.preventDefault();selectDot(dot,midi);});
+        dot.addEventListener("click",e=>{if(e.detail===0)selectDot(dot,midi);});
+        cell.appendChild(dot);
+      }
+      row.appendChild(cell);
+    }
+    wood.appendChild(row);
+  });
+  container.appendChild(wood);
+  updateNoteInfo();
+}
+function selectDot(dot,midi){
+  playGuitarPluck(midi,.8,1);
+  document.querySelectorAll(".note-dot.sel-dot").forEach(d=>d.classList.remove("sel-dot"));
+  dot.classList.add("sel-dot");state.sel=dot.dataset.key;
+  dot.classList.add("active-pulse");setTimeout(()=>dot.classList.remove("active-pulse"),220);
+  updateNoteInfo();
+}
+function updateNoteInfo(){
+  const el=document.getElementById("noteInfo"),t=I18N[state.lang],d=document.querySelector(".note-dot.sel-dot");
+  if(!d){el.textContent=t.infoHint;return;}
+  const rel=Number(d.dataset.rel),pc=Number(d.dataset.midi)%12;
+  el.innerHTML=t.info(NOTES_SHARP[pc],d.dataset.deg,rel,t.intervals[rel],d.dataset.str,d.dataset.fret);
+}
+function updateStaticTexts(){
+  const t=I18N[state.lang],$=id=>document.getElementById(id);
+  document.documentElement.lang=state.lang==="pt"?"pt-BR":state.lang;
+  $("uiHeaderBadge").textContent=t.headerBadge;$("uiHeaderSubtitle").innerHTML=t.headerSubtitle;
+  $("uiBtnPedal").textContent=state.pedalPlaying?t.btnPedalStop:t.btnPedalPlay;
+  $("uiBtnScale").textContent=t.btnScale;$("uiBtnSlow").textContent=t.btnSlow;$("uiBtnHarmony").textContent=t.btnHarmony;$("uiBtnMetro").textContent=t.btnMetro;
+  $("uiVolMetroLabel").textContent=t.volMetro;$("uiVolBaseLabel").textContent=t.volBase;$("uiVolScaleLabel").textContent=t.volScale;$("uiVolMasterLabel").textContent=t.volMaster;
+  $("uiStep1Title").textContent=t.step1Title;$("btnString6").textContent=t.str6;$("btnString5").textContent=t.str5;
+  $("uiStep2Title").textContent=t.step2Title;$("uiFixedRulerBadge").textContent=t.fixedRuler;$("uiStep3Label").textContent=t.step3Label;
+  $("uiBox1Title").textContent=t.box1Title;$("uiBox2Title").textContent=t.box2Title;$("uiBox3Title").textContent=t.box3Title;
+  $("uiFretboardTitle").textContent=t.fretTitle;$("uiFretboardSub").textContent=t.fretSub;
+  $("uiLegRoot").textContent=t.legRoot;$("uiLegChar").textContent=t.legChar;$("uiLegScale").textContent=t.legScale;
+  $("btnToggleLabels").textContent=state.showDegrees?t.toggleLabelsDegrees:t.toggleLabelsNotes;
+  document.querySelectorAll(".lang-btn").forEach(b=>{
+    b.className=b.dataset.lang===state.lang?"lang-btn px-2 py-0.5 text-[11px] font-bold rounded-md bg-sky-500 text-slate-950 transition cursor-pointer"
+      :"lang-btn px-2 py-0.5 text-[11px] font-bold rounded-md text-slate-400 hover:text-white transition cursor-pointer";
+  });
+  const on="px-2.5 py-1 rounded-md text-[11px] font-bold bg-sky-500 text-slate-950 transition cursor-pointer",off="px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-400 hover:text-white transition cursor-pointer";
+  $("btnString6").className=state.anchorString===6?on:off;$("btnString5").className=state.anchorString===5?on:off;$("btnString7").className=state.anchorString===7?on:off;updateExtraTexts();
+}
+const SEG_ON="px-2.5 py-1 rounded-md text-[11px] font-bold bg-sky-500 text-slate-950 transition cursor-pointer",SEG_OFF="px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-400 hover:text-white transition cursor-pointer";
+const PRE_ON="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950 border border-emerald-300 transition cursor-pointer",PRE_OFF="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#131d33] hover:bg-[#1a2744] text-slate-200 border border-slate-700/80 transition cursor-pointer";
+function updateExtraTexts(){
+  const t=I18N[state.lang],$=id=>document.getElementById(id),seven=state.stringCount===7;
+  $("uiLegTarget").textContent=t.legTarget;$("uiPresetLabel").textContent=t.presetLabel;
+  $("btnPresetStudy").textContent=t.presetStudy;$("btnPresetBacking").textContent=t.presetBacking;
+  $("btnPresetStudy").className=state.preset==="study"?PRE_ON:PRE_OFF;$("btnPresetBacking").className=state.preset==="backing"?PRE_ON:PRE_OFF;
+  $("btnStrings6").textContent=t.strings6;$("btnStrings7").textContent=t.strings7;
+  $("btnStrings6").className=seven?SEG_OFF:SEG_ON;$("btnStrings7").className=seven?SEG_ON:SEG_OFF;
+  $("uiLow7Label").textContent=t.low7Label;$("low7Select").value=state.low7;$("low7Wrap").classList.toggle("hidden",!seven);
+  $("btnString7").textContent=`${({pt:"7ª Corda",en:"7th String",es:"7ª Cuerda"})[state.lang]} (${state.low7})`;$("btnString7").classList.toggle("hidden",!seven);
+  const kb=$("btnKeepAwake"),ok="wakeLock" in navigator;
+  kb.textContent=!ok?t.keepNA:state.keepAwake?t.keepOn:t.keepOff;kb.disabled=!ok;
+  kb.className="ml-auto px-3 py-1.5 rounded-lg text-xs font-bold border transition "+(!ok?"opacity-50 cursor-not-allowed bg-[#131d33] text-slate-400 border-slate-700/80":state.keepAwake?"bg-amber-500/15 text-amber-300 border-amber-500/40 cursor-pointer":"bg-[#131d33] text-slate-300 border-slate-700/80 cursor-pointer");
+}
+const PRESETS={study:{metroVol:.4,backingVol:.55,scaleVol:.95,masterVol:1},backing:{metroVol:.2,backingVol:.92,scaleVol:.6,masterVol:1.05}};
+function applyPreset(k){
+  Object.assign(state,PRESETS[k]);state.preset=k;
+  [["sliderMetroVol","valMetroVol","metroVol"],["sliderBaseVol","valBaseVol","backingVol"],["sliderScaleVol","valScaleVol","scaleVol"],["sliderMasterVol","valMasterVol","masterVol"]]
+    .forEach(([i,v,key])=>{const n=Math.round(state[key]*100);document.getElementById(i).value=n;document.getElementById(v).textContent=`${n}%`;});
+  applyMasterGain();updateExtraTexts();
+}
+function renderAll(){updateStaticTexts();renderBossGrid();renderModesGrid();renderRulerBanner();renderFretboard();updateMediaSession();}
+
+// ============ 5. EVENTOS ============
+const $=id=>document.getElementById(id);
+document.querySelectorAll(".lang-btn").forEach(b=>b.addEventListener("click",()=>{state.lang=b.dataset.lang;renderAll();}));
+$("btnString6").addEventListener("click",()=>{state.anchorString=6;renderAll();});
+$("btnString5").addEventListener("click",()=>{state.anchorString=5;renderAll();});
+$("btnPedalBase").addEventListener("click",()=>{
+  state.pedalPlaying=!state.pedalPlaying;
+  const btn=$("btnPedalBase");$("pedalPlayIcon").textContent=state.pedalPlaying?"■":"▶";
+  btn.classList.toggle("bg-emerald-500",state.pedalPlaying);btn.classList.toggle("hover:bg-emerald-400",state.pedalPlaying);
+  btn.classList.toggle("bg-amber-500",!state.pedalPlaying);btn.classList.toggle("hover:bg-amber-400",!state.pedalPlaying);
+  updateStaticTexts();syncPedalAndBacking();
+});
+$("btnPlayScale").addEventListener("click",()=>playScaleUpAndDown(false));
+$("btnPlayHarmony").addEventListener("click",()=>playModeHarmony());
+$("btnPlaySlow").addEventListener("click",()=>playScaleUpAndDown(true));
+$("btnMetronome").addEventListener("click",()=>{
+  state.metroPlaying=!state.metroPlaying;
+  const dot=$("metroDot"),btn=$("btnMetronome");
+  dot.classList.toggle("bg-slate-500",!state.metroPlaying);dot.classList.toggle("bg-emerald-400",state.metroPlaying);
+  dot.classList.toggle("shadow-[0_0_8px_#34d399]",state.metroPlaying);btn.classList.toggle("border-emerald-500/60",state.metroPlaying);
+  syncMetronome();
+});
+$("btnBpmDown").addEventListener("click",()=>{state.bpm=Math.max(40,state.bpm-4);$("bpmValue").textContent=state.bpm;});
+$("btnBpmUp").addEventListener("click",()=>{state.bpm=Math.min(220,state.bpm+4);$("bpmValue").textContent=state.bpm;});
+$("timeSigSelect").addEventListener("change",e=>{state.beatsPerBar=Number(e.target.value);});
+const bindVol=(id,valId,key,fn)=>$(id).addEventListener("input",e=>{
+  state[key]=Number(e.target.value)/100;$(valId).textContent=`${e.target.value}%`;if(fn)fn();state.preset=null;updateExtraTexts();
+});
+bindVol("sliderMetroVol","valMetroVol","metroVol");
+bindVol("sliderBaseVol","valBaseVol","backingVol");
+bindVol("sliderScaleVol","valScaleVol","scaleVol");
+bindVol("sliderMasterVol","valMasterVol","masterVol",()=>{applyMasterGain();});
+$("btnToggleLabels").addEventListener("click",()=>{state.showDegrees=!state.showDegrees;updateStaticTexts();renderFretboard();});
+
+$("btnPresetStudy").addEventListener("click",()=>applyPreset("study"));
+$("btnPresetBacking").addEventListener("click",()=>applyPreset("backing"));
+$("btnString7").addEventListener("click",()=>{state.anchorString=7;renderAll();});
+$("btnStrings6").addEventListener("click",()=>{state.stringCount=6;if(state.anchorString===7)state.anchorString=6;renderAll();});
+$("btnStrings7").addEventListener("click",()=>{state.stringCount=7;renderAll();});
+$("low7Select").addEventListener("change",e=>{state.low7=e.target.value;renderAll();});
+$("btnKeepAwake").addEventListener("click",()=>{
+  state.keepAwake=!state.keepAwake;try{localStorage.setItem("mm_keepAwake",state.keepAwake?"1":"0");}catch(e){}
+  if(state.keepAwake&&isActive())acquireWL();else if(!state.keepAwake)releaseWL();
+  updateExtraTexts();
+});
+if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
+bindMediaActions();
+renderAll();
+</script>
+</body>
+</html>
